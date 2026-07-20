@@ -1,0 +1,72 @@
+<app-greeting [userName]="fullName"></app-greeting>
+
+<!-- Informational Role Banner -->
+<div class="info-banner">
+  <div class="info-banner-content">
+    <h4>IT Support Control Console</h4>
+    <p>Manage system access permissions, credentials, and account lockout events. Use the sidebar to reset passwords or suspend employee accounts.</p>
+  </div>
+</div>
+
+<!-- Statistic Cards Grid -->
+<div class="grid grid-4" style="margin-bottom: 2rem;">
+  <app-statistic-card title="Locked Accounts" [value]="lockedAccountsCount()" icon="" themeColor="danger"></app-statistic-card>
+  <app-statistic-card title="Password Reset Requests" [value]="resetRequestsCount()" icon="" themeColor="warning"></app-statistic-card>
+  <app-statistic-card title="Open Tickets" [value]="openTicketsCount()" icon="" themeColor="primary"></app-statistic-card>
+  <app-statistic-card title="Inactive Accounts" [value]="inactiveAccountsCount()" icon="" themeColor="warning"></app-statistic-card>
+</div>
+
+<!-- Alert status notification -->
+<div class="alert alert-success animate-fade" *ngIf="successMessage()">
+  {{ successMessage() }}
+</div>
+<div class="alert alert-danger animate-fade" *ngIf="errorMessage()">
+  {{ errorMessage() }}
+</div>
+
+<!-- Support Tickets Queue -->
+<div class="card tickets-card animate-fade">
+  <div class="card-header">
+    <h3 class="card-title">Pending Support Tickets Queue</h3>
+    <span class="badge badge-danger">{{ tickets().length }} Active Requests</span>
+  </div>
+  
+  <div class="loading-state" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <span>Processing queue data...</span>
+  </div>
+
+  <div class="table-responsive" *ngIf="!isLoading()">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Employee Name</th>
+          <th>Employee Code</th>
+          <th>Issue Type</th>
+          <th>Description</th>
+          <th>Timestamp</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tkt of tickets()">
+          <td><strong>{{ tkt.employeeName }}</strong></td>
+          <td><code>{{ tkt.employeeCode }}</code></td>
+          <td>
+            <span class="badge" [class.badge-danger]="tkt.issueType === 'LOCKED_ACCOUNT'" [class.badge-warning]="tkt.issueType === 'PASSWORD_RESET'">
+              {{ tkt.issueType === 'LOCKED_ACCOUNT' ? 'Locked Account' : 'Credentials Reset' }}
+            </span>
+          </td>
+          <td style="font-size: 0.8rem; color: var(--text-muted);">{{ tkt.details }}</td>
+          <td>{{ tkt.createdAt | date:'shortTime' }}</td>
+          <td>
+            <button class="btn btn-success btn-sm" (click)="resolveTicket(tkt)">Quick Resolve</button>
+          </td>
+        </tr>
+        <tr *ngIf="tickets().length === 0">
+          <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No open security tickets pending in the system.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

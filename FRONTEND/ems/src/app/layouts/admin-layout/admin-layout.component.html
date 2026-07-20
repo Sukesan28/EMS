@@ -1,0 +1,15 @@
+<div class="admin-container" [class.reset-mode]="isResetting()">
+  <app-header *ngIf="!isResetting()" (sidebarToggle)="toggleSidebar()"></app-header>
+  
+  <div class="admin-body">
+    <app-sidebar *ngIf="!isResetting()" [isCollapsed]="isSidebarCollapsed"></app-sidebar>
+    
+    <main class="main-content" 
+          [class.collapsed]="!isResetting() && isSidebarCollapsed" 
+          [class.reset-content]="isResetting()">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

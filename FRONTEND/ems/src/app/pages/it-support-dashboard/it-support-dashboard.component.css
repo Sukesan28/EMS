@@ -1,0 +1,186 @@
+.dashboard-layout-grid {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+
+.actions-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.actions-vertical-list .btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-align: left;
+  display: flex;
+  justify-content: flex-start;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid transparent;
+  margin-top: 1.5rem;
+}
+
+.alert-danger {
+  background-color: #FDE8E8;
+  color: #9B1C1C;
+  border-color: #F8B4B4;
+}
+
+.alert-success {
+  background-color: #DEF7EC;
+  color: #03543F;
+  border-color: #BCF0DA;
+}
+
+/* Stat Cards click filters */
+.stat-card-clickable {
+  transition: transform 0.2s ease, filter 0.2s ease;
+  border-radius: var(--border-radius);
+}
+.stat-card-clickable:hover {
+  transform: translateY(-3px);
+}
+.active-filter {
+  box-shadow: 0 0 0 3px var(--primary);
+  transform: translateY(-3px);
+}
+
+/* Directory Toolbar & Tabs */
+.directory-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  background-color: #F8FAFC;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.directory-toolbar .search-input-wrapper {
+  flex: 1;
+  min-width: 260px;
+}
+
+.search-bar {
+  width: 100%;
+  background-color: #FFFFFF;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.tab-btn {
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  background-color: #E2E8F0;
+  color: var(--text-color);
+}
+
+.tab-btn.active {
+  background-color: var(--primary);
+  color: #FFFFFF;
+}
+
+/* Security Table styling */
+.security-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.security-table tbody tr.selected-row {
+  background-color: #EFF6FF !important;
+  border-left: 3px solid var(--primary);
+}
+
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  min-width: 28px;
+}
+
+.role-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  background-color: #F1F5F9;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Command Center Profile Details */
+.selected-profile-box {
+  background-color: #F8FAFC;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+.profile-header-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.animate-fade {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

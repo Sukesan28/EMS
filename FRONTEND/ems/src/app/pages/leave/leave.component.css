@@ -1,0 +1,87 @@
+.action-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.add-btn {
+  height: 38px;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.25rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-color);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.emp-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-code-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.type-badge {
+  background-color: #F1F5F9;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+.reason-cell {
+  display: flex;
+  flex-direction: column;
+  max-width: 250px;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
+}
+
+.comments-sub {
+  font-size: 0.75rem;
+  color: var(--warning-hover);
+  margin-top: 0.15rem;
+  font-style: italic;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.completed-text {
+  font-size: 0.8rem;
+}

@@ -1,0 +1,107 @@
+.action-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.add-btn {
+  height: 38px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.role-badge {
+  background-color: #F1F5F9;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.large-modal {
+  max-width: 700px !important;
+}
+
+/* Profile Details Overlay */
+.view-profile-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.profile-avatar-large {
+  width: 72px;
+  height: 72px;
+  background-color: #DBEAFE;
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.profile-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.profile-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.25rem 0;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 1.5rem;
+  width: 100%;
+  text-align: left;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.p-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-val {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-field {
+    grid-column: span 1 !important;
+  }
+}

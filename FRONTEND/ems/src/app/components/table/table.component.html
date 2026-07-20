@@ -1,0 +1,26 @@
+<div class="table-container">
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th *ngFor="let header of headers">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="!isLoading && !isEmpty">
+        <ng-content></ng-content>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <span>Loading data...</span>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && isEmpty">
+    <h3>No records found</h3>
+    <p>There is no data to show in this view.</p>
+  </div>
+</div>

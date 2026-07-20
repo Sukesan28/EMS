@@ -1,0 +1,88 @@
+<app-greeting [userName]="fullName"></app-greeting>
+
+<!-- Role Description Banner -->
+<div class="info-banner">
+  <div class="info-banner-content">
+    <h4>HR Administration Portal</h4>
+    <p>Welcome to the Human Resources Portal. Here you can manage company departments, view and update employee records, track organizational attendance, and process leave requests.</p>
+  </div>
+</div>
+
+<!-- Statistic Cards Grid -->
+<div class="grid grid-3">
+  <app-statistic-card title="Total Employees" [value]="totalEmployees()"  themeColor="primary"></app-statistic-card>
+  <app-statistic-card title="Total Departments" [value]="totalDepartments()"  themeColor="success"></app-statistic-card>
+  <app-statistic-card title="Total Managers" [value]="totalManagers()"  themeColor="warning"></app-statistic-card>
+</div>
+
+<div class="grid grid-3" style="margin-top: 1.5rem;">
+  <app-statistic-card title="Present Today" [value]="presentCount()" themeColor="success"></app-statistic-card>
+  <app-statistic-card title="Absent Today" [value]="absentCount()"  themeColor="danger"></app-statistic-card>
+  <app-statistic-card title="Leave Approved" [value]="onLeaveCount()"  themeColor="warning"></app-statistic-card>
+</div>
+
+<div class="dashboard-layout-grid" style="margin-top: 1.5rem;">
+  <!-- Left Side: Recent Employees -->
+  <div class="card recent-employees-card">
+    <div class="card-header">
+      <h3 class="card-title">Recent Employees</h3>
+      <a routerLink="/employees" class="view-all-link">View All</a>
+    </div>
+    
+    <div class="loading-state" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <span>Loading dashboard details...</span>
+    </div>
+
+    <div class="table-responsive" *ngIf="!isLoading()">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Designation</th>
+            <th>Department</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of recentEmployees()">
+            <td><strong>{{ emp.employeeCode }}</strong></td>
+            <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+            <td>{{ emp.designation }}</td>
+            <td>{{ emp.departmentName }}</td>
+            <td>
+              <span class="badge" [class.badge-success]="emp.employmentStatus === 'ACTIVE'" [class.badge-warning]="emp.employmentStatus === 'ON_PROBATION'" [class.badge-danger]="emp.employmentStatus === 'TERMINATED' || emp.employmentStatus === 'SUSPENDED'">
+                {{ emp.employmentStatus }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="recentEmployees().length === 0">
+            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No employees found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Right Side: Quick Actions -->
+  <div class="card quick-actions-card">
+    <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+      <h3 class="card-title">Quick Actions</h3>
+    </div>
+    <div class="actions-grid">
+      <a routerLink="/employees" [queryParams]="{action: 'create'}" class="action-item">
+        <span class="action-label">Create Employee</span>
+      </a>
+      <a routerLink="/departments" [queryParams]="{action: 'create'}" class="action-item">
+        <span class="action-label">Create Department</span>
+      </a>
+      <a routerLink="/attendance" class="action-item">
+        <span class="action-label">Attendance</span>
+      </a>
+      <a routerLink="/reports" class="action-item">
+        <span class="action-label">Reports</span>
+      </a>
+    </div>
+  </div>
+</div>

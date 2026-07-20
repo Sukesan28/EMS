@@ -1,0 +1,114 @@
+<app-greeting [userName]="fullName"></app-greeting>
+
+<!-- Role Description Banner -->
+<div class="info-banner">
+  <div class="info-banner-content">
+    <h4>Employee Self-Service</h4>
+    <p>Welcome to the Employee Portal. Here you can check in and out for work, submit leave applications, view upcoming holidays, and verify your profile details.</p>
+  </div>
+</div>
+
+<!-- Statistic Cards Grid -->
+<div class="grid grid-4">
+  <app-statistic-card title="My Attendance" [value]="myAttendanceCount()" icon="" themeColor="primary"></app-statistic-card>
+  <app-statistic-card title="Leave Balance" [value]="leaveBalance() + ' Days'" icon="" themeColor="success"></app-statistic-card>
+  <app-statistic-card title="Department" [value]="departmentName()" icon="" themeColor="warning"></app-statistic-card>
+  <app-statistic-card title="Manager Name" [value]="managerName()" icon="" themeColor="primary"></app-statistic-card>
+</div>
+
+<div class="dashboard-layout-grid">
+  <!-- Left Side: Profile Summary & Recent Attendance -->
+  <div class="flex flex-col gap-3">
+    <!-- Profile Summary -->
+    <div class="card profile-summary-card" *ngIf="profile() as prof">
+      <div class="card-header">
+        <h3 class="card-title">Profile Summary</h3>
+        <a routerLink="/profile" class="view-all-link">Edit</a>
+      </div>
+      <div class="profile-summary-details">
+        <div class="detail-row">
+          <span class="detail-label">Designation:</span>
+          <span class="detail-value">{{ prof.designation }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Joining Date:</span>
+          <span class="detail-value">{{ prof.joiningDate }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Email Address:</span>
+          <span class="detail-value">{{ prof.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone Number:</span>
+          <span class="detail-value">{{ prof.phone }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Attendance -->
+    <div class="card recent-attendance-card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Attendance Logs</h3>
+        <a routerLink="/attendance" class="view-all-link">View Logs</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Clock In</th>
+              <th>Clock Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of recentAttendance()">
+              <td>{{ log.attendanceDate }}</td>
+              <td>{{ log.clockInTime ? (log.clockInTime | date:'shortTime') : '-' }}</td>
+              <td>{{ log.clockOutTime ? (log.clockOutTime | date:'shortTime') : '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-success]="log.attendanceStatus === 'PRESENT'" [class.badge-warning]="log.attendanceStatus === 'LATE'" [class.badge-danger]="log.attendanceStatus === 'ABSENT'">
+                  {{ log.attendanceStatus }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="recentAttendance().length === 0">
+              <td colspan="4" class="no-records-cell">No attendance records found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Quick Actions & Holidays -->
+  <div class="flex flex-col gap-3">
+    <!-- Quick Actions -->
+    <div class="card quick-actions-card">
+      <div class="card-header card-header-bordered">
+        <h3 class="card-title">Quick Actions</h3>
+      </div>
+      <div class="actions-grid">
+        <a routerLink="/leave" [queryParams]="{action: 'apply'}" class="action-item">
+          <span class="action-label">Apply Leave</span>
+        </a>
+        <a routerLink="/profile" class="action-item">
+          <span class="action-label">Update Profile</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Upcoming Holidays -->
+    <div class="card holidays-card">
+      <div class="card-header card-header-bordered">
+        <h3 class="card-title">Upcoming Holidays</h3>
+      </div>
+      <div class="holiday-list">
+        <div class="holiday-item" *ngFor="let holiday of upcomingHolidays">
+          <span class="holiday-name">{{ holiday.name }}</span>
+          <span class="holiday-date">{{ holiday.date }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

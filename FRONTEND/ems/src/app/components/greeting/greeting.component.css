@@ -1,0 +1,25 @@
+.greeting-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.greeting-text h1 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  font-weight: 700;
+  margin: 0;
+}
+
+.greeting-subtitle {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}

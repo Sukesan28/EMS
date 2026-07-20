@@ -1,0 +1,23 @@
+<header class="header">
+  <div class="header-left">
+    <button class="hamburger-btn" (click)="toggleSidebar()">
+      <span>&#9776;</span>
+    </button>
+    <div class="logo-container">
+      <span class="logo-text">GlobalTech Solutions</span>
+    </div>
+  </div>
+  
+  <div class="header-right">
+    <div class="user-profile" *ngIf="getCurrentUser() as user">
+      <div class="avatar-placeholder">
+        {{ user.fullName.charAt(0) }}
+      </div>
+      <div class="user-details">
+        <span class="user-name">{{ user.fullName }}</span>
+        <span class="user-role">{{ user.role }}</span>
+      </div>
+    </div>
+    
+  </div>
+</header>

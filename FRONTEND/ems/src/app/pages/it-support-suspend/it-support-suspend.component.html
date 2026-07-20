@@ -1,0 +1,122 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">IT Support - Activate / Suspend Account</h2>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage()">
+    {{ successMessage() }}
+  </div>
+  <div class="alert alert-danger" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+  </div>
+
+  <div class="dashboard-layout-grid">
+    <!-- Lookup & Suspend Actions Section -->
+    <div class="card">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+        <h3 class="card-title">Employee Lookup</h3>
+      </div>
+      <form (ngSubmit)="onLookup()" #lookupForm="ngForm">
+        <div class="form-group">
+          <label class="form-label" for="employeeCode">Enter Employee Code</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <input type="text" 
+                   id="employeeCode" 
+                   name="employeeCode" 
+                   class="form-control" 
+                   [ngModel]="employeeCodeInput()" 
+                   (ngModelChange)="employeeCodeInput.set($event)" 
+                   required 
+                   placeholder="e.g. GTS1001"
+                   style="flex: 1;">
+            <button type="submit" class="btn btn-primary" [disabled]="lookupForm.invalid">
+              Search
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Details if found -->
+      <div class="selected-profile-box animate-fade" *ngIf="selectedEmployee() as emp" style="margin-top: 1.5rem;">
+        <div class="profile-header-summary" style="margin-bottom: 1.25rem;">
+          <div class="avatar-circle" [style.background-color]="emp.accountEnabled ? 'var(--primary)' : 'var(--danger)'">
+            {{ emp.firstName.charAt(0) }}{{ emp.lastName.charAt(0) }}
+          </div>
+          <div>
+            <h4 style="margin: 0; font-size: 1.05rem;">{{ emp.firstName }} {{ emp.lastName }}</h4>
+            <span class="role-badge" style="margin-top: 0.25rem; display: inline-block;">{{ emp.role }}</span>
+          </div>
+        </div>
+
+        <div class="details-list" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+          <div class="detail-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">Email</span>
+            <strong>{{ emp.email }}</strong>
+          </div>
+          <div class="detail-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">Department</span>
+            <strong>{{ emp.departmentName || 'None' }}</strong>
+          </div>
+          <div class="detail-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">Designation</span>
+            <strong>{{ emp.designation }}</strong>
+          </div>
+          <div class="detail-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">Account Active</span>
+            <strong [style.color]="emp.accountEnabled ? 'var(--success)' : 'var(--danger)'">
+              {{ emp.accountEnabled ? 'Yes' : 'No (Suspended)' }}
+            </strong>
+          </div>
+          <div class="detail-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">Employment Status</span>
+            <strong>{{ emp.employmentStatus }}</strong>
+          </div>
+        </div>
+
+        <div *ngIf="emp.role === 'HR'" class="alert alert-danger" style="margin-top: 0; margin-bottom: 1rem; padding: 0.5rem 0.75rem;">
+          IT Support cannot modify HR accounts.
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+
+          <!-- Enable Account Button -->
+          <button type="button"
+                  class="btn btn-success"
+                  [disabled]="emp.role === 'HR' || isLoading() || emp.accountEnabled === true"
+                  (click)="onActivate()"
+                  style="flex: 1; text-align: center; justify-content: center;"
+                  [title]="emp.accountEnabled ? 'Account is already active' : 'Enable this account'">
+            {{ isLoading() ? 'Processing...' : '✅ Enable Account' }}
+          </button>
+
+          <!-- Suspend Account Button -->
+          <button type="button"
+                  class="btn btn-danger"
+                  [disabled]="emp.role === 'HR' || isLoading() || emp.accountEnabled === false"
+                  (click)="onSuspend()"
+                  style="flex: 1; text-align: center; justify-content: center;"
+                  [title]="!emp.accountEnabled ? 'Account is already suspended' : 'Suspend this account'">
+            {{ isLoading() ? 'Processing...' : '🚫 Suspend Account' }}
+          </button>
+
+          <button type="button" class="btn btn-secondary" (click)="clearSelection()">
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Information and Policies -->
+    <div class="card">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+        <h3 class="card-title">IT Security Suspension Policies</h3>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">
+        Suspending an account revokes the employee's login credentials immediately and marks their status as SUSPENDED. Active manager accounts cannot be suspended if there are employees reporting directly to them; reassign the reporting lines through HR before initiating suspension.
+      </p>
+      <div style="background-color: #FEE2E2; border-left: 4px solid #EF4444; padding: 0.75rem; border-radius: 4px; font-size: 0.8rem; color: #991B1B;">
+        <strong>System Safeguard:</strong> Under no circumstances may an IT Support user suspend or disable an HR department account.
+      </div>
+    </div>
+  </div>
+</div>

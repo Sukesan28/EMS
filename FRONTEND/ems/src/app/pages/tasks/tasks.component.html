@@ -1,0 +1,103 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">Task Management</h2>
+    
+    <!-- Assign Task Button (Manager only) -->
+    <div class="action-right" *ngIf="userRole === 'MANAGER'">
+      <button class="btn btn-primary add-btn" (click)="openAssignModal()">Assign Task</button>
+    </div>
+  </div>
+
+  <!-- Table Component -->
+  <app-table [headers]="getHeaders()"
+             [isLoading]="isLoading()"
+             [isEmpty]="isEmpty()"
+             [totalItems]="tasks().length"
+             [pageSize]="10"
+             [currentPage]="1">
+    <tr *ngFor="let task of tasks()">
+
+      <!-- HR: Department Name -->
+      <td *ngIf="userRole === 'HR'">{{ task.departmentName || 'N/A' }}</td>
+
+      <!-- HR + MANAGER: Employee Code & Name -->
+      <td *ngIf="userRole === 'HR' || userRole === 'MANAGER'"><strong>{{ task.assigneeCode }}</strong></td>
+      <td *ngIf="userRole === 'HR' || userRole === 'MANAGER'">{{ task.assigneeName }}</td>
+
+      <!-- All roles: Task Title, Description, Status, Due Date -->
+      <td><strong>{{ task.title }}</strong></td>
+      <td>
+        <div class="desc-cell" [title]="task.description">
+          {{ task.description || 'No description provided' }}
+        </div>
+      </td>
+      <td>
+        <span class="badge"
+              [class.badge-success]="task.status === 'COMPLETED'"
+              [class.badge-warning]="task.status === 'IN_PROGRESS'"
+              [class.badge-info]="!task.status || task.status === 'NOT_STARTED'">
+          {{ task.status || 'NOT_STARTED' }}
+        </span>
+      </td>
+      <td>
+        <strong>{{ task.dueDate ? (task.dueDate | date:'mediumDate') : 'No Due Date' }}</strong>
+      </td>
+    </tr>
+  </app-table>
+
+  <!-- Assign Task Modal -->
+  <div class="modal-backdrop" *ngIf="isAssignModalOpen">
+    <form (ngSubmit)="onAssignTask()" #assignForm="ngForm" class="modal-content">
+      <div class="modal-header">
+        <span>Assign New Task</span>
+        <button class="close-btn" (click)="closeAssignModal()" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+          <!-- Title -->
+          <div class="form-group">
+            <label class="form-label" for="taskTitle">Task Title</label>
+            <input type="text" id="taskTitle" name="taskTitle" class="form-control" [(ngModel)]="assignModel.title" required placeholder="Enter task title">
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label" for="taskDescription">Description</label>
+            <textarea id="taskDescription" name="taskDescription" class="form-control" [(ngModel)]="assignModel.description" rows="3" placeholder="Enter task details/instructions"></textarea>
+          </div>
+
+          <!-- Assignee -->
+          <div class="form-group">
+            <label class="form-label" for="assignee">Assign To</label>
+            <select id="assignee" name="assignee" class="form-control" [(ngModel)]="assignModel.assigneeId" required>
+              <option *ngFor="let member of teamMembers()" [value]="member.employeeId">
+                {{ member.fullName }} ({{ member.employeeCode }})
+              </option>
+            </select>
+            <p class="form-help-text" *ngIf="teamMembers().length === 0" style="color: var(--danger); font-size: 0.8rem;">
+              No employee records available to assign tasks.
+            </p>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label class="form-label" for="taskStatus">Status</label>
+            <select id="taskStatus" name="taskStatus" class="form-control" [(ngModel)]="assignModel.status" required>
+              <option value="NOT_STARTED">Not Started</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+          </div>
+
+          <!-- Due Date -->
+          <div class="form-group">
+            <label class="form-label" for="dueDate">Due Date</label>
+            <input type="date" id="dueDate" name="dueDate" class="form-control" [(ngModel)]="assignModel.dueDate">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAssignModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="assignForm.invalid || teamMembers().length === 0">Assign Task</button>
+      </div>
+    </form>
+  </div>
+</div>

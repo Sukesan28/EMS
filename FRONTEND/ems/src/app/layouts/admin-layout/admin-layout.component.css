@@ -1,0 +1,56 @@
+.admin-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.admin-body {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - var(--header-height));
+  margin-top: var(--header-height);
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  background-color: var(--bg-color);
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.2s ease;
+  overflow-y: auto;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.main-content.collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+.content-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Reset Mode override when in password reset flow */
+.admin-container.reset-mode {
+  height: 100vh;
+}
+.reset-mode .admin-body {
+  margin-top: 0 !important;
+  height: 100vh !important;
+}
+.main-content.reset-content {
+  margin-left: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;
+    padding: 1rem;
+  }
+}

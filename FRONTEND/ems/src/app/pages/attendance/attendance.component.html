@@ -1,0 +1,77 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">Attendance Tracker</h2>
+  </div>
+
+  <!-- Role Tabs for HR and Manager -->
+  <div class="tabs-container" *ngIf="userRole === 'HR' || userRole === 'MANAGER'">
+    <button class="tab-btn" [class.active]="activeTab === 'my-attendance'" (click)="switchTab('my-attendance')">
+      My Attendance
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'team-attendance'" *ngIf="userRole === 'MANAGER'"
+      (click)="switchTab('team-attendance')">
+      Employee Attendance
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'all-attendance'" *ngIf="userRole === 'HR'"
+      (click)="switchTab('all-attendance')">
+      All Company Attendance
+    </button>
+  </div>
+
+  <!-- Employee Clock In/Out Quick Panel -->
+  <div class="card clock-panel" *ngIf="activeTab === 'my-attendance'">
+    <div class="clock-status-container">
+      <span class="status-indicator-icon">⏰</span>
+      <div class="clock-status-details">
+        <h4>Daily Attendance Punch</h4>
+        <p *ngIf="!hasClockedInToday() && !hasClockedOutToday()">You have not clocked in today yet.</p>
+        <p *ngIf="hasClockedInToday() && !hasClockedOutToday()" class="status-working">
+          ✓ Active Working Session
+        </p>
+        <p *ngIf="hasClockedOutToday()" class="status-completed">
+          ✓ Work completed for today.
+        </p>
+      </div>
+    </div>
+
+    <div class="clock-actions">
+      <button class="btn btn-success" [disabled]="hasClockedInToday() || isLoading()" (click)="clockIn()">
+        ▶ Check In
+      </button>
+      <button class="btn btn-danger" [disabled]="!hasClockedInToday() || hasClockedOutToday() || isLoading()"
+        (click)="clockOut()">
+        ■ Check Out
+      </button>
+    </div>
+  </div>
+
+  <div class="log-section-header">
+    <h3>
+      {{ activeTab === 'my-attendance' ? 'My Attendance Logs' : activeTab === 'team-attendance' ? 'Team Attendance Logs'
+      : 'All Employee Attendance Logs' }}
+    </h3>
+  </div>
+
+  <!-- Table displaying logs -->
+  <app-table [headers]="getHeaders()" [isLoading]="isLoading()" [isEmpty]="isEmpty()" [totalItems]="logs().length"
+    [pageSize]="10" [currentPage]="1">
+    <tr *ngFor="let log of logs()">
+      <!-- Hide employee code/name for personal attendance logs -->
+      <td *ngIf="activeTab !== 'my-attendance'"><strong>{{ log.employeeCode || 'N/A' }}</strong></td>
+      <td *ngIf="activeTab !== 'my-attendance'">{{ log.employeeName || 'N/A' }}</td>
+      <td><strong>{{ log.attendanceDate }}</strong></td>
+      <td>{{ log.clockInTime ? (log.clockInTime | date:'mediumTime') : '--:--' }}</td>
+      <td>{{ log.clockOutTime ? (log.clockOutTime | date:'mediumTime') : '--:--' }}</td>
+      <td>{{ log.workingHours !== null ? log.workingHours + ' Hrs' : '0 Hrs' }}</td>
+      <td>{{ log.overtimeHours !== null ? log.overtimeHours + ' Hrs' : '0 Hrs' }}</td>
+      <td>
+        <span class="badge" [class.badge-success]="log.attendanceStatus === 'PRESENT'"
+          [class.badge-warning]="log.attendanceStatus === 'HALF_DAY'"
+          [class.badge-danger]="log.attendanceStatus === 'ABSENT' || log.attendanceStatus === 'ON_LEAVE'">
+          {{ log.attendanceStatus === 'PRESENT' ? 'Present (Full Day)' : log.attendanceStatus === 'HALF_DAY' ? 'Half
+          Day' : log.attendanceStatus }}
+        </span>
+      </td>
+    </tr>
+  </app-table>
+</div>

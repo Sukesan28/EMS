@@ -1,0 +1,15 @@
+<div class="modal-backdrop" *ngIf="isOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>{{ title }}</span>
+      <button class="close-btn" (click)="onCancel()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="dialog-message">{{ message }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="onCancel()">{{ cancelText }}</button>
+      <button class="btn" [class]="'btn-' + type" (click)="onConfirm()">{{ confirmText }}</button>
+    </div>
+  </div>
+</div>

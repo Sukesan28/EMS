@@ -1,0 +1,132 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">{{ isOwnProfile() ? 'My Profile' : 'Employee Profile Details' }}</h2>
+    <div class="action-right" *ngIf="basicDetails() && !isEditMode() && isOwnProfile()">
+      <button class="btn btn-primary" (click)="toggleEditMode()">✏️ Edit Profile</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading() && !basicDetails()">
+    <div class="spinner"></div>
+    <span>Loading profile details...</span>
+  </div>
+
+  <!-- Messages -->
+  <div class="alert alert-success" *ngIf="successMessage()">
+    {{ successMessage() }}
+  </div>
+  <div class="alert alert-danger" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+  </div>
+
+  <!-- Profile Layout -->
+  <div *ngIf="basicDetails() as details" class="profile-page-wrapper">
+    
+    <div class="profile-layout-grid">
+      <div class="card system-details-card">
+        <div class="avatar-profile-large">
+          {{ details.firstName ? details.firstName.charAt(0) : '' }}{{ details.lastName ? details.lastName.charAt(0) : '' }}
+        </div>
+        <h3 class="profile-name">{{ details.firstName }} {{ details.lastName }}</h3>
+        <p class="profile-desc">{{ details.designation }} | {{ details.departmentName || 'No Department' }}</p>
+
+        <hr class="divider">
+
+        <div class="details-list">
+          <div class="detail-row">
+            <span class="detail-label">Employee Code</span>
+            <span class="detail-value"><strong>{{ details.employeeCode }}</strong></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Department</span>
+            <span class="detail-value">{{ details.departmentName || 'Not Assigned' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">System Role</span>
+            <span class="detail-value">{{ details.role }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Reporting Manager</span>
+            <span class="detail-value">{{ details.managerName || 'None' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Joining Date</span>
+            <span class="detail-value">{{ details.joiningDate }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Date of Birth</span>
+            <span class="detail-value">{{ details.dateOfBirth }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Gender</span>
+            <span class="detail-value">{{ details.gender }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Employment Status</span>
+            <span class="detail-value">
+              <span class="badge" [class.badge-success]="details.employmentStatus === 'ACTIVE'" [class.badge-danger]="details.employmentStatus === 'TERMINATED' || details.employmentStatus === 'SUSPENDED'">
+                {{ details.employmentStatus }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Personal & Contact Info -->
+      <div class="card contact-details-card">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+          <h3 class="card-title">Contact & Personal Details</h3>
+        </div>
+
+        <form (ngSubmit)="onSaveProfile()" #profileForm="ngForm">
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" 
+                   id="email" 
+                   name="email" 
+                   class="form-control" 
+                   [(ngModel)]="formModel.email" 
+                   required 
+                   [disabled]="!isEditMode()">
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <input type="text" 
+                   id="phone" 
+                   name="phone" 
+                   class="form-control" 
+                   [(ngModel)]="formModel.phone" 
+                   required 
+                   pattern="^\d{10}$" 
+                   [disabled]="!isEditMode()">
+          </div>
+
+          <!-- Address -->
+          <div class="form-group">
+            <label class="form-label" for="address">Residential Address</label>
+            <textarea id="address" 
+                      name="address" 
+                      class="form-control" 
+                      [(ngModel)]="formModel.address" 
+                      required 
+                      rows="4" 
+                      [disabled]="!isEditMode()"></textarea>
+          </div>
+
+          <!-- Action triggers when edit mode is active -->
+          <div class="form-actions" *ngIf="isEditMode()">
+            <button type="button" class="btn btn-secondary" (click)="toggleEditMode()">Cancel</button>
+            <button type="submit" class="btn btn-primary ml-2" [disabled]="profileForm.invalid || isLoading()">
+              {{ isLoading() ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

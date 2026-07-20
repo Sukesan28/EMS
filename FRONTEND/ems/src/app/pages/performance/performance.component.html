@@ -1,0 +1,193 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">Performance Appraisals</h2>
+    
+    <!-- Record Appraisal Button (Managers only) -->
+    <div class="action-right" *ngIf="userRole === 'MANAGER'">
+      <button class="btn btn-primary add-btn" (click)="openCreateModal()">Record Appraisal</button>
+    </div>
+  </div>
+
+  <!-- Table Component -->
+  <app-table [headers]="getHeaders()"
+             [isLoading]="isLoading()"
+             [isEmpty]="isEmpty()"
+             [totalItems]="reviews().length"
+             [pageSize]="10"
+             [currentPage]="1">
+    <tr *ngFor="let rev of reviews()">
+      <ng-container *ngIf="userRole === 'HR'; else standardRow">
+        <td>{{ rev.departmentName || 'N/A' }}</td>
+        <td>{{ rev.employeeName }}</td>
+        <td><strong>{{ rev.employeeCode }}</strong></td>
+        <td><strong>{{ rev.reviewPeriod }}</strong></td>
+        <td>
+          <div class="text-cell" [title]="rev.feedback">{{ rev.feedback || 'No feedback provided' }}</div>
+        </td>
+        <td>
+          <div class="rating-display">
+            <strong>{{ rev.rating }}/5</strong>
+          </div>
+        </td>
+        <td>{{ rev.reviewDate | date:'mediumDate' }}</td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-secondary btn-sm" (click)="openViewModal(rev)">View</button>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-template #standardRow>
+        <td *ngIf="activeTab !== 'my-reviews'">
+          <div class="emp-cell">
+            <a (click)="navigateToProfile(rev)" style="cursor: pointer; color: var(--primary-color); font-weight: 600; text-decoration: underline;">
+              {{ rev.employeeName }} ({{ rev.employeeCode }})
+            </a>
+          </div>
+        </td>
+        <td><strong>{{ rev.reviewPeriod }}</strong></td>
+        <td>
+          <div class="text-cell" [title]="rev.performanceGoal">{{ rev.performanceGoal }}</div>
+        </td>
+        <td>
+          <div class="rating-display">
+            <strong>{{ rev.rating }}/5</strong>
+          </div>
+        </td>
+        <td>{{ rev.reviewDate | date:'mediumDate' }}</td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-secondary btn-sm" (click)="openViewModal(rev)">View</button>
+            <button class="btn btn-secondary btn-sm ml-2" 
+                    *ngIf="activeTab === 'team-reviews'" 
+                    (click)="openEditModal(rev)" 
+                    title="Edit Review">
+              Edit
+            </button>
+          </div>
+        </td>
+      </ng-template>
+    </tr>
+  </app-table>
+
+  <!-- Appraisal Modal -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <form (ngSubmit)="onSubmit()" #appraisalForm="ngForm" class="modal-content">
+      <div class="modal-header">
+        <span>{{ isEditMode ? 'Edit Performance Appraisal' : 'Record New Appraisal' }}</span>
+        <button class="close-btn" (click)="closeModal()" type="button">✕</button>
+      </div>
+      <div class="modal-body scrollable-body">
+          <!-- Employee (select dropdown of team members) -->
+          <div class="form-group" *ngIf="!isEditMode">
+            <label class="form-label" for="employee">Select Employee</label>
+            <select id="employee" name="employee" class="form-control" [(ngModel)]="selectedEmployeeId" required>
+              <option *ngFor="let member of teamMembers()" [value]="member.employeeId">
+                {{ member.fullName }} ({{ member.employeeCode }})
+              </option>
+            </select>
+            <p class="form-help-text" *ngIf="teamMembers().length === 0" style="color: var(--danger); font-size: 0.8rem;">
+              No team members available for appraisal.
+            </p>
+          </div>
+
+          <div class="form-group" *ngIf="isEditMode">
+            <label class="form-label">Employee</label>
+            <input type="text" class="form-control" [value]="formModel.reviewPeriod" disabled style="background-color: var(--background-hover);">
+          </div>
+
+          <!-- Review Period -->
+          <div class="form-group">
+            <label class="form-label" for="reviewPeriod">Review Period</label>
+            <input type="text" id="reviewPeriod" name="reviewPeriod" class="form-control" [(ngModel)]="formModel.reviewPeriod" required placeholder="e.g. Q1 2026, Q2 2026, Annual 2026">
+          </div>
+
+          <!-- Goal -->
+          <div class="form-group">
+            <label class="form-label" for="performanceGoal">Key Goals Set</label>
+            <textarea id="performanceGoal" name="performanceGoal" class="form-control" [(ngModel)]="formModel.performanceGoal" required rows="2" placeholder="List key objectives set..."></textarea>
+          </div>
+
+          <!-- Achievement -->
+          <div class="form-group">
+            <label class="form-label" for="achievement">Achievements Recorded</label>
+            <textarea id="achievement" name="achievement" class="form-control" [(ngModel)]="formModel.achievement" required rows="2" placeholder="Detail employee achievements..."></textarea>
+          </div>
+
+          <!-- Strength -->
+          <div class="form-group">
+            <label class="form-label" for="strength">Strengths & Core Competencies</label>
+            <textarea id="strength" name="strength" class="form-control" [(ngModel)]="formModel.strength" rows="2" placeholder="Highlight key strengths..."></textarea>
+          </div>
+
+          <!-- Improvement Area -->
+          <div class="form-group">
+            <label class="form-label" for="improvementArea">Areas for Development</label>
+            <textarea id="improvementArea" name="improvementArea" class="form-control" [(ngModel)]="formModel.improvementArea" rows="2" placeholder="Specify development opportunities..."></textarea>
+          </div>
+
+          <!-- Rating -->
+          <div class="form-group">
+            <label class="form-label" for="rating">Performance Rating (1-5)</label>
+            <select id="rating" name="rating" class="form-control" [(ngModel)]="formModel.rating" required>
+              <option [value]="5">5 - Outstanding</option>
+              <option [value]="4">4 - Exceeds Expectations</option>
+              <option [value]="3">3 - Meets Expectations</option>
+              <option [value]="2">2 - Needs Improvement</option>
+              <option [value]="1">1 - Unsatisfactory</option>
+            </select>
+          </div>
+
+          <!-- Feedback -->
+          <div class="form-group">
+            <label class="form-label" for="feedback">General Feedback / Manager Comments</label>
+            <textarea id="feedback" name="feedback" class="form-control" [(ngModel)]="formModel.feedback" rows="3" placeholder="Provide general feedback comments..."></textarea>
+          </div>
+
+          <!-- Review Date -->
+          <div class="form-group">
+            <label class="form-label" for="reviewDate">Review Date</label>
+            <input type="date" id="reviewDate" name="reviewDate" class="form-control" [(ngModel)]="formModel.reviewDate" required>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="appraisalForm.invalid || (teamMembers().length === 0 && !isEditMode)">
+          {{ isEditMode ? 'Update Appraisal' : 'Record Appraisal' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- View Employee Details Modal -->
+  <div class="modal-backdrop" *ngIf="isViewModalOpen">
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <span>Employee Details</span>
+        <button class="close-btn" (click)="closeViewModal()">✕</button>
+      </div>
+      <div class="modal-body" *ngIf="selectedEmployee() as emp">
+        <div class="grid grid-2">
+          <div><strong>Employee Code:</strong> {{ emp.employeeCode }}</div>
+          <div><strong>Role:</strong> {{ emp.role }}</div>
+          <div><strong>First Name:</strong> {{ emp.firstName }}</div>
+          <div><strong>Last Name:</strong> {{ emp.lastName }}</div>
+          <div><strong>Email:</strong> {{ emp.email }}</div>
+          <div><strong>Phone:</strong> {{ emp.phone }}</div>
+          <div><strong>Gender:</strong> {{ emp.gender }}</div>
+          <div><strong>Date of Birth:</strong> {{ emp.dateOfBirth }}</div>
+          <div><strong>Joining Date:</strong> {{ emp.joiningDate }}</div>
+          <div><strong>Department:</strong> {{ emp.departmentName || 'N/A' }}</div>
+          <div><strong>Designation:</strong> {{ emp.designation }}</div>
+          <div><strong>Manager:</strong> {{ emp.managerName || 'None' }}</div>
+          <div><strong>Salary:</strong> {{ emp.salary | currency:'INR' }}</div>
+          <div><strong>Status:</strong> {{ emp.employmentStatus }}</div>
+          <div style="grid-column: span 2;"><strong>Address:</strong> {{ emp.address }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeViewModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

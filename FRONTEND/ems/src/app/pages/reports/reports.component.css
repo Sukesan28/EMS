@@ -1,0 +1,59 @@
+.filter-card {
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+}
+
+.flex-1 {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.action-buttons-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.print-only-header {
+  display: none;
+}
+
+/* Printing styles */
+@media print {
+  body {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  .no-print, app-header, app-sidebar, .hamburger-btn, .header, .sidebar {
+    display: none !important;
+  }
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+  .print-report-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .print-only-header {
+    display: block;
+    margin-bottom: 2rem;
+  }
+  .table-container {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .table th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+  }
+}

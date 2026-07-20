@@ -1,0 +1,145 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">Departments</h2>
+    <div class="action-right">
+      <app-search-bar placeholder="Search departments..." (search)="onSearch($event)"></app-search-bar>
+      <button class="btn btn-primary add-btn" (click)="openAddModal()">Add Department</button>
+    </div>
+  </div>
+
+  <!-- Reusable Table Component -->
+  <app-table [headers]="['Code', 'Department Name', 'Head of Dept', 'Total Employees', 'Status', 'Actions']"
+             [isLoading]="isLoading()"
+             [isEmpty]="isEmpty()"
+             [totalItems]="filteredDepartments().length"
+             [pageSize]="10"
+             [currentPage]="1">
+    <tr *ngFor="let dept of filteredDepartments()">
+      <td><strong>{{ dept.departmentCode }}</strong></td>
+      <td>
+        <div class="dept-info-cell">
+          <span class="dept-name-val">{{ dept.departmentName }}</span>
+          <span class="dept-desc-val" *ngIf="dept.description">{{ dept.description }}</span>
+        </div>
+      </td>
+      <td>{{ dept.departmentHead || 'None' }}</td>
+      <td><strong>{{ dept.totalEmployees || 0 }}</strong> Employees</td>
+      <td>
+        <span class="badge" [class.badge-success]="dept.status === 'ACTIVE'" [class.badge-danger]="dept.status === 'INACTIVE'">
+          {{ dept.status }}
+        </span>
+      </td>
+      <td>
+        <div class="table-actions">
+          <button class="btn btn-secondary btn-sm mr-2" (click)="openEditModal(dept)" title="Edit Department">Edit</button>
+          <button class="btn btn-primary btn-sm" (click)="openChangeManagerModal(dept)" title="Change Manager">Change Head</button>
+        </div>
+      </td>
+    </tr>
+  </app-table>
+
+  <!-- Add / Edit Department Modal -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <form (ngSubmit)="onSubmitForm()" #deptForm="ngForm" class="modal-content">
+      <div class="modal-header">
+        <span>{{ isEditMode ? 'Edit Department details' : 'Add New Department' }}</span>
+        <button class="close-btn" (click)="closeModal()" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+          <!-- Department Name -->
+          <div class="form-group">
+            <label class="form-label" for="departmentName">Department Name</label>
+            <input type="text" id="departmentName" name="departmentName" class="form-control" [(ngModel)]="formModel.departmentName" required placeholder="Enter department name">
+          </div>
+
+          <!-- Department Head -->
+          <div class="form-group" *ngIf="isEditMode">
+            <label class="form-label" for="departmentHead">Head of Department</label>
+            <input type="text" id="departmentHead" name="departmentHead" class="form-control" [(ngModel)]="formModel.departmentHead" placeholder="Enter head of department">
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label class="form-label" for="status">Status</label>
+            <select id="status" name="status" class="form-control" [(ngModel)]="formModel.status" required>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" [(ngModel)]="formModel.description" rows="3" placeholder="Enter department description"></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="deptForm.invalid">Save Department</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Change Manager Modal -->
+  <div class="modal-backdrop" *ngIf="isChangeManagerOpen">
+    <form (ngSubmit)="onChangeManagerSubmit()" #changeManagerForm="ngForm" class="modal-content medium-modal">
+      <div class="modal-header">
+        <span>Change Manager - {{ selectedDept?.departmentName }}</span>
+        <button class="close-btn" (click)="closeChangeManagerModal()" type="button">✕</button>
+      </div>
+      <div class="modal-body scrollable-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
+          Select any employee to assign as the new Department Head. They will be promoted to MANAGER role and automatically transferred to this department. The previous manager will be demoted to EMPLOYEE.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="newManager">New Department Head</label>
+          <select id="newManager" name="newManager" class="form-control" [(ngModel)]="selectedNewManagerId" required>
+            <option *ngFor="let emp of deptEmployees()" [value]="emp.id">
+              {{ emp.firstName }} {{ emp.lastName }} ({{ emp.employeeCode }}) — {{ emp.designation }} | {{ emp.departmentName || 'No Dept' }}
+            </option>
+          </select>
+          <p class="form-help-text" *ngIf="deptEmployees().length === 0" style="color: var(--danger); font-size: 0.8rem; margin-top: 0.5rem;">
+            No eligible employees found in this department to assign as manager.
+          </p>
+        </div>
+
+        <!-- History section -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
+            Department Head History Log
+          </h4>
+          <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
+            <table class="table" style="font-size: 0.8rem;">
+              <thead>
+                <tr>
+                  <th>Previous Manager</th>
+                  <th>New Manager</th>
+                  <th>Date Changed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let h of managerHistory()">
+                  <td>{{ h.previousManagerName }}</td>
+                  <td>{{ h.newManagerName }}</td>
+                  <td>{{ h.changedAt | date:'medium' }}</td>
+                </tr>
+                <tr *ngIf="managerHistory().length === 0">
+                  <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1rem;">
+                    No manager changes recorded yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeChangeManagerModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="changeManagerForm.invalid || deptEmployees().length === 0">
+          Confirm Change
+        </button> 
+      </div>
+    </form>
+  </div>
+</div>

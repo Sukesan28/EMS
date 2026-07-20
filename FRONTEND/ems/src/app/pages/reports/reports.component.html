@@ -1,0 +1,88 @@
+<div class="container no-print">
+  <div class="action-bar">
+    <h2 class="page-title">Reports & Analytics</h2>
+  </div>
+
+  <!-- Selection Card -->
+  <div class="card filter-card">
+    <div class="filter-row">
+      <div class="form-group flex-1">
+        <label class="form-label" for="reportType">Select Report Type</label>
+        <select id="reportType" name="reportType" class="form-control" [(ngModel)]="reportType" (change)="generateReport()">
+          <option value="EMPLOYEES">Active Employees Directory</option>
+          <option value="LEAVES">Company Leave Requests Log</option>
+          <option value="ATTENDANCE">All Employees Attendance Log</option>
+        </select>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Print-friendly Report Container -->
+<div class="container print-report-container">
+  <div class="print-only-header">
+    <h2>EMS Report Summary</h2>
+    <p>Report Category: {{ reportType }} | Generated on: {{ todayDate | date:'medium' }}</p>
+    <hr>
+  </div>
+
+  <!-- Employee report table -->
+  <div *ngIf="reportType === 'EMPLOYEES'">
+    <app-table [headers]="['Code', 'Name', 'Designation', 'Department', 'Role', 'Status', 'Joining Date']"
+               [isLoading]="isLoading()"
+               [isEmpty]="isEmpty()"
+               [totalItems]="employeesList().length"
+               [pageSize]="10"
+               [currentPage]="1">
+      <tr *ngFor="let emp of employeesList()">
+        <td><strong>{{ emp.employeeCode }}</strong></td>
+        <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+        <td>{{ emp.designation }}</td>
+        <td>{{ emp.departmentName || 'N/A' }}</td>
+        <td>{{ emp.role }}</td>
+        <td>{{ emp.employmentStatus }}</td>
+        <td>{{ emp.joiningDate }}</td>
+      </tr>
+    </app-table>
+  </div>
+
+  <!-- Leaves report table -->
+  <div *ngIf="reportType === 'LEAVES'">
+    <app-table [headers]="['Employee', 'Leave Type', 'Start Date', 'End Date', 'Days', 'Reason', 'Status']"
+               [isLoading]="isLoading()"
+               [isEmpty]="isEmpty()"
+               [totalItems]="leavesList().length"
+               [pageSize]="10"
+               [currentPage]="1">
+      <tr *ngFor="let leave of leavesList()">
+        <td>{{ leave.employeeName }} ({{ leave.employeeCode }})</td>
+        <td>{{ leave.leaveType }}</td>
+        <td>{{ leave.startDate }}</td>
+        <td>{{ leave.endDate }}</td>
+        <td>{{ leave.totalDays }} Days</td>
+        <td>{{ leave.reason }}</td>
+        <td>{{ leave.status }}</td>
+      </tr>
+    </app-table>
+  </div>
+
+  <!-- Attendance report table -->
+  <div *ngIf="reportType === 'ATTENDANCE'">
+    <app-table [headers]="['Date', 'Clock In', 'Clock Out', 'Working Hours', 'Overtime', 'Status']"
+               [isLoading]="isLoading()"
+               [isEmpty]="isEmpty()"
+               [totalItems]="attendanceList().length"
+               [pageSize]="10"
+               [currentPage]="1">
+      <tr *ngFor="let log of attendanceList()">
+        <td>{{ log.attendanceDate }}</td>
+        <td>{{ log.clockInTime ? (log.clockInTime | date:'shortTime') : '-' }}</td>
+        <td>{{ log.clockOutTime ? (log.clockOutTime | date:'shortTime') : '-' }}</td>
+        <td>{{ log.workingHours || 0 }} Hrs</td>
+        <td>{{ log.overtimeHours || 0 }} Hrs</td>
+        <td>{{ log.attendanceStatus }}</td>
+      </tr>
+    </app-table>
+  </div>
+</div>

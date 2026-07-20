@@ -1,0 +1,104 @@
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.25rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-color);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.clock-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  margin-bottom: 2rem;
+}
+
+.clock-status-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-indicator-icon {
+  font-size: 2.25rem;
+}
+
+.clock-status-details h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.clock-status-details p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.status-working {
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+.status-completed {
+  color: var(--success) !important;
+  font-weight: 600;
+}
+
+.clock-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.clock-actions .btn {
+  height: 40px;
+  padding: 0 1.5rem;
+  font-weight: 600;
+}
+
+.log-section-header {
+  margin-bottom: 1rem;
+}
+
+.log-section-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+@media (max-width: 640px) {
+  .clock-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+  .clock-actions {
+    justify-content: stretch;
+  }
+  .clock-actions .btn {
+    flex: 1;
+  }
+}

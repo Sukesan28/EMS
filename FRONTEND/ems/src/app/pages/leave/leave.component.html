@@ -1,0 +1,164 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">Leave Management</h2>
+    
+    <!-- Apply Button only for Employees or standard personal view -->
+    <div class="action-right" *ngIf="userRole === 'EMPLOYEE' || activeTab === 'my-leaves'">
+      <button class="btn btn-primary add-btn" (click)="openApplyModal()">Apply Leave</button>
+    </div>
+  </div>
+
+  <!-- Role Tabs -->
+  <div class="tabs-container" *ngIf="userRole === 'HR' || userRole === 'MANAGER'">
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'my-leaves'" 
+            *ngIf="userRole === 'MANAGER'"
+            (click)="switchTab('my-leaves')">
+      My Leaves
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'pending-approvals'" 
+            *ngIf="userRole === 'MANAGER'"
+            (click)="switchTab('pending-approvals')">
+      Pending Requests
+    </button>
+    <button class="tab-btn" 
+            [class.active]="activeTab === 'all-leaves'" 
+            *ngIf="userRole === 'HR'"
+            (click)="switchTab('all-leaves')">
+      All Company Leaves
+    </button>
+  </div>
+
+  <!-- Table Component -->
+  <app-table [headers]="getHeaders()"
+             [isLoading]="isLoading()"
+             [isEmpty]="isEmpty()"
+             [totalItems]="leaves().length"
+             [pageSize]="10"
+             [currentPage]="1">
+    <tr *ngFor="let leave of leaves()">
+      <td *ngIf="activeTab !== 'my-leaves'">
+        <div class="emp-cell">
+          <strong>{{ leave.employeeCode }}</strong>
+          <span class="emp-code-sub">{{ leave.employeeName }}</span>
+        </div>
+      </td>
+      <td><span class="type-badge">{{ leave.leaveType }}</span></td>
+      <td>{{ leave.startDate }}</td>
+      <td>{{ leave.endDate }}</td>
+      <td><strong>{{ leave.totalDays }}</strong> Days</td>
+      <td>
+        <span class="badge" 
+              [class.badge-info]="leave.status === 'PENDING'" 
+              [class.badge-success]="leave.status === 'APPROVED'" 
+              [class.badge-danger]="leave.status === 'REJECTED' || leave.status === 'CANCELLED'">
+          {{ leave.status }}
+        </span>
+      </td>
+      <td>
+        <div class="reason-cell" [title]="leave.reason">
+          <span class="text-truncate">{{ leave.reason }}</span>
+        </div>
+      </td>
+      <td>
+        <div class="table-actions">
+          <!-- Employee cancel action -->
+          <button class="btn btn-danger btn-sm" 
+                  *ngIf="activeTab === 'my-leaves' && leave.status === 'PENDING'"
+                  (click)="cancelLeave(leave.id)">
+            Cancel
+          </button>
+          
+          <!-- Manager / HR approval actions -->
+          <button class="btn btn-success btn-sm" 
+                  *ngIf="((activeTab === 'pending-approvals' && userRole === 'MANAGER') || (activeTab === 'all-leaves' && userRole === 'HR' && (leave.employeeRole === 'MANAGER' || leave.employeeRole === 'IT_SUPPORT'))) && leave.status === 'PENDING'"
+                  (click)="openApprovalModal(leave.id, true)">
+            Approve
+          </button>
+          <button class="btn btn-danger btn-sm" 
+                  *ngIf="((activeTab === 'pending-approvals' && userRole === 'MANAGER') || (activeTab === 'all-leaves' && userRole === 'HR' && (leave.employeeRole === 'MANAGER' || leave.employeeRole === 'IT_SUPPORT'))) && leave.status === 'PENDING'"
+                  (click)="openApprovalModal(leave.id, false)">
+            Reject
+          </button>
+          
+          <span *ngIf="leave.status !== 'PENDING'" class="text-muted completed-text">Completed</span>
+        </div>
+      </td>
+    </tr>
+  </app-table>
+
+  <!-- Apply Leave Modal -->
+  <div class="modal-backdrop" *ngIf="isApplyModalOpen">
+    <form (ngSubmit)="onApplyLeave()" #applyForm="ngForm" class="modal-content">
+      <div class="modal-header">
+        <span>Apply for Leave</span>
+        <button class="close-btn" (click)="closeApplyModal()" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+          <!-- Leave Type -->
+          <div class="form-group">
+            <label class="form-label" for="leaveType">Leave Type</label>
+            <select id="leaveType" name="leaveType" class="form-control" [(ngModel)]="applyModel.leaveType" required>
+              <option value="CASUAL">Casual Leave</option>
+              <option value="SICK">Sick Leave</option>
+              <option value="ANNUAL">Annual Leave</option>
+              <option value="MATERNITY">Maternity Leave</option>
+              <option value="PATERNITY">Paternity Leave</option>
+            </select>
+          </div>
+
+          <!-- Start Date -->
+          <div class="form-group">
+            <label class="form-label" for="startDate">Start Date</label>
+            <input type="date" id="startDate" name="startDate" class="form-control" [(ngModel)]="applyModel.startDate" required>
+          </div>
+
+          <!-- End Date -->
+          <div class="form-group">
+            <label class="form-label" for="endDate">End Date</label>
+            <input type="date" id="endDate" name="endDate" class="form-control" [(ngModel)]="applyModel.endDate" required>
+          </div>
+
+          <!-- Reason -->
+          <div class="form-group">
+            <label class="form-label" for="reason">Reason for Leave</label>
+            <textarea id="reason" name="reason" class="form-control" [(ngModel)]="applyModel.reason" required rows="3" placeholder="State reason..."></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeApplyModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="applyForm.invalid">Submit Request</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Manager Leave Approval Modal -->
+  <div class="modal-backdrop" *ngIf="isApprovalModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>{{ isApprovalActionApprove ? 'Approve Leave Request' : 'Reject Leave Request' }}</span>
+        <button class="close-btn" (click)="closeApprovalModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="comments">Manager Comments / Remarks</label>
+          <textarea id="comments" 
+                    name="comments" 
+                    class="form-control" 
+                    [(ngModel)]="managerComments" 
+                    rows="3" 
+                    placeholder="Enter remarks for the employee..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeApprovalModal()">Cancel</button>
+        <button type="button" 
+                [class]="isApprovalActionApprove ? 'btn btn-success' : 'btn btn-danger'" 
+                (click)="submitApproval()">
+          {{ isApprovalActionApprove ? 'Confirm Approval' : 'Confirm Rejection' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+.action-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.add-btn {
+  height: 38px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dept-info-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.dept-name-val {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.dept-desc-val {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}

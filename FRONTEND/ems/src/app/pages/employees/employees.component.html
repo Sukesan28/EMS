@@ -1,0 +1,201 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">Employees Directory</h2>
+    <div class="action-right">
+      <app-search-bar placeholder="Search by Employee Code..." (search)="onSearch($event)"></app-search-bar>
+      <button class="btn btn-primary add-btn" (click)="openAddModal()" *ngIf="userRole === 'HR'">Add Employee</button>
+    </div>
+  </div>
+
+  <!-- Reusable Table Component -->
+  <app-table [headers]="['Code', 'Name', 'Designation', 'Department', 'Role', 'Status', 'Actions']"
+             [isLoading]="isLoading()"
+             [isEmpty]="isEmpty()"
+             [totalItems]="employees().length"
+             [pageSize]="10"
+             [currentPage]="1">
+    <tr *ngFor="let emp of employees()">
+      <td><strong>{{ emp.employeeCode }}</strong></td>
+      <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+      <td>{{ emp.designation }}</td>
+      <td>{{ emp.departmentName || 'N/A' }}</td>
+      <td><span class="role-badge">{{ emp.role }}</span></td>
+      <td>
+        <span class="badge" 
+              [class.badge-success]="emp.employmentStatus === 'ACTIVE'" 
+              [class.badge-warning]="emp.employmentStatus === 'ON_PROBATION'" 
+              [class.badge-danger]="emp.employmentStatus === 'TERMINATED' || emp.employmentStatus === 'SUSPENDED'">
+          {{ emp.employmentStatus }}
+        </span>
+      </td>
+      <td>
+        <div class="table-actions">
+          <button class="btn btn-secondary btn-sm" (click)="openViewModal(emp)" title="View Details">View</button>
+          <button class="btn btn-secondary btn-sm" (click)="openEditModal(emp)" *ngIf="userRole === 'HR'" title="Edit Employee">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="triggerDelete(emp.id)" *ngIf="userRole === 'HR' && emp.employeeCode !== currentUserCode" title="Delete Employee">Delete</button>
+        </div>
+      </td>
+    </tr>
+  </app-table>
+
+  <!-- Add / Edit Employee Modal -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <form (ngSubmit)="onSubmitForm()" #employeeForm="ngForm" class="modal-content large-modal">
+      <div class="modal-header">
+        <span>{{ isEditMode ? 'Edit Employee Details' : 'Add New Employee' }}</span>
+        <button class="close-btn" (click)="closeModal()" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+          <div class="grid grid-2">
+            <!-- First Name -->
+            <div class="form-group">
+              <label class="form-label" for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" class="form-control" [(ngModel)]="formModel.firstName" required placeholder="Enter employee first name">
+            </div>
+            
+            <!-- Last Name -->
+            <div class="form-group">
+              <label class="form-label" for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" class="form-control" [(ngModel)]="formModel.lastName" required placeholder="Enter employee last name">
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="email">Email</label>
+              <input type="email" id="email" name="email" class="form-control" [(ngModel)]="formModel.email" required email placeholder="Enter employee email">
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone Number</label>
+              <input type="text" id="phone" name="phone" class="form-control" [(ngModel)]="formModel.phone" required pattern="^\d{10}$" placeholder="Enter employee phone number">
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+              <label class="form-label" for="gender">Gender</label>
+              <select id="gender" name="gender" class="form-control" [(ngModel)]="formModel.gender" required>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="form-group">
+              <label class="form-label" for="dateOfBirth">Date of Birth</label>
+              <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" [(ngModel)]="formModel.dateOfBirth" required>
+            </div>
+
+            <!-- Designation -->
+            <div class="form-group">
+              <label class="form-label" for="designation">Designation</label>
+              <input type="text" id="designation" name="designation" class="form-control" [(ngModel)]="formModel.designation" required placeholder="Enter employee designation">
+            </div>
+
+            <!-- Joining Date -->
+            <div class="form-group">
+              <label class="form-label" for="joiningDate">Joining Date</label>
+              <input type="date" id="joiningDate" name="joiningDate" class="form-control" [(ngModel)]="formModel.joiningDate" required>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+              <label class="form-label" for="departmentId">Department</label>
+              <select id="departmentId" name="departmentId" class="form-control" [(ngModel)]="formModel.departmentId" required (change)="onDepartmentOrRoleChange()">
+                <option [value]="0">Select Department</option>
+                <option *ngFor="let dept of departments()" [value]="dept.id">{{ dept.departmentName }}</option>
+              </select>
+            </div>
+
+            <!-- Manager -->
+            <div class="form-group" *ngIf="formModel.role !== 'HR'">
+              <label class="form-label" for="managerId">Reporting Manager</label>
+              <select id="managerId" name="managerId" class="form-control" [(ngModel)]="formModel.managerId">
+                <option [value]="null">No Manager (None)</option>
+                <option *ngFor="let manager of filteredManagers" [value]="manager.id">{{ manager.firstName }} {{ manager.lastName }}</option>
+              </select>
+            </div>
+
+            <!-- Salary -->
+            <div class="form-group">
+              <label class="form-label" for="salary">Base Salary</label>
+              <input type="number" id="salary" name="salary" class="form-control" [(ngModel)]="formModel.salary" required placeholder="Enter employee base salary">
+            </div>
+
+            <!-- Role -->
+            <div class="form-group">
+              <label class="form-label" for="role">User Role</label>
+              <select id="role" name="role" class="form-control" [(ngModel)]="formModel.role" required (change)="onDepartmentOrRoleChange()">
+                <option value="HR">HR</option>
+                <option value="MANAGER">Manager</option>
+                <option value="EMPLOYEE">Employee</option>
+                <option value="IT_SUPPORT">IT Support</option>
+              </select>
+            </div>
+
+            <!-- Employment Status -->
+            <div class="form-group">
+              <label class="form-label" for="employmentStatus">Employment Status</label>
+              <select id="employmentStatus" name="employmentStatus" class="form-control" [(ngModel)]="formModel.employmentStatus" required>
+                <option value="ACTIVE">Active</option>
+                <option value="ON_PROBATION">Probation</option>
+                <option value="SUSPENDED">Suspended</option>
+                <option value="TERMINATED">Terminated</option>
+              </select>
+            </div>
+            
+            <!-- Address -->
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label" for="address">Residential Address</label>
+              <textarea id="address" name="address" class="form-control" [(ngModel)]="formModel.address" required rows="2" placeholder="Enter employee residential address"></textarea>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="employeeForm.invalid">Save Employee</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- View Employee Details Modal -->
+  <div class="modal-backdrop" *ngIf="isViewModalOpen">
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <span>Employee Details</span>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" *ngIf="selectedEmployee">
+        <div class="grid grid-2">
+          <div><strong>Employee Code:</strong> {{ selectedEmployee.employeeCode }}</div>
+          <div><strong>Role:</strong> {{ selectedEmployee.role }}</div>
+          <div><strong>First Name:</strong> {{ selectedEmployee.firstName }}</div>
+          <div><strong>Last Name:</strong> {{ selectedEmployee.lastName }}</div>
+          <div><strong>Email:</strong> {{ selectedEmployee.email }}</div>
+          <div><strong>Phone:</strong> {{ selectedEmployee.phone }}</div>
+          <div><strong>Gender:</strong> {{ selectedEmployee.gender }}</div>
+          <div><strong>Date of Birth:</strong> {{ selectedEmployee.dateOfBirth }}</div>
+          <div><strong>Joining Date:</strong> {{ selectedEmployee.joiningDate }}</div>
+          <div><strong>Department:</strong> {{ selectedEmployee.departmentName || 'N/A' }}</div>
+          <div><strong>Designation:</strong> {{ selectedEmployee.designation }}</div>
+          <div><strong>Manager:</strong> {{ selectedEmployee.managerName || 'None' }}</div>
+          <div><strong>Salary:</strong> {{ selectedEmployee.salary | currency:'INR' }}</div>
+          <div><strong>Status:</strong> {{ selectedEmployee.employmentStatus }}</div>
+          <div style="grid-column: span 2;"><strong>Address:</strong> {{ selectedEmployee.address }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog [isOpen]="isConfirmDialogOpen"
+                      title="Delete Employee"
+                      message="Are you sure you want to delete this employee? This action is permanent and cannot be undone."
+                      (confirm)="onConfirmDelete()"
+                      (cancel)="onCancelDelete()">
+  </app-confirm-dialog>
+</div>

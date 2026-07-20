@@ -1,0 +1,22 @@
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.close-btn:hover {
+  background-color: #F1F5F9;
+  color: var(--text-color);
+}
+
+.dialog-message {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  line-height: 1.5;
+}

@@ -1,0 +1,16 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="menu-list">
+    <a *ngFor="let item of filteredMenuItems()"
+       [routerLink]="item.path"
+       routerLinkActive="active"
+       [title]="item.label"
+       class="menu-item">
+      <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+    </a>
+    
+    <!-- Logout Action Button at the bottom -->
+    <a (click)="logout()" title="Sign Out" class="menu-item logout-item">
+      <span class="menu-label" *ngIf="!isCollapsed">Logout</span>
+    </a>
+  </div>
+</aside>

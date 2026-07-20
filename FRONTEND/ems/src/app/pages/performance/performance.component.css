@@ -1,0 +1,80 @@
+.action-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.add-btn {
+  height: 38px;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.25rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-color);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.emp-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-code-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.text-cell {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.stars {
+  color: #fbbf24;
+  font-size: 1.1rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.scrollable-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}

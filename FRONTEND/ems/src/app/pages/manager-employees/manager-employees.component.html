@@ -1,0 +1,141 @@
+<div class="container">
+  <div class="action-bar">
+    <h2 class="page-title">My Team Directory</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Assigned Team Members</h3>
+      <span class="badge badge-info" *ngIf="!isLoading">{{ employees.length }} Employees</span>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <span>Loading employee records...</span>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="alert alert-danger" *ngIf="!isLoading && errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Table content -->
+    <div class="table-responsive" *ngIf="!isLoading && !errorMessage && employees.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Employee Code</th>
+            <th>Employee Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Designation</th>
+            <th>Department</th>
+            <th>Employment Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of employees">
+            <td><strong>{{ emp.employeeCode }}</strong></td>
+            <td>{{ emp.fullName }}</td>
+            <td>{{ emp.email }}</td>
+            <td>{{ emp.phone }}</td>
+            <td>{{ emp.designation }}</td>
+            <td>{{ emp.departmentName || 'N/A' }}</td>
+            <td>
+              <span class="badge" 
+                    [class.badge-success]="emp.employmentStatus === 'ACTIVE'" 
+                    [class.badge-warning]="emp.employmentStatus === 'ON_PROBATION'" 
+                    [class.badge-danger]="emp.employmentStatus === 'TERMINATED' || emp.employmentStatus === 'SUSPENDED'">
+                {{ emp.employmentStatus }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-secondary btn-sm" (click)="openViewModal(emp)" title="View Details">View</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && !errorMessage && employees.length === 0">
+      <h3>No employees assigned.</h3>
+      <p>There are no team members directly reporting to you at this time.</p>
+    </div>
+  </div>
+
+  <!-- View Employee Details Modal -->
+  <div class="modal-backdrop" *ngIf="isViewModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>Employee Profile Overview</span>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body view-profile-body" *ngIf="!isLoadingProfile && selectedEmployee">
+        <div class="profile-avatar-large">
+          {{ selectedEmployee.firstName.charAt(0) }}{{ selectedEmployee.lastName.charAt(0) }}
+        </div>
+        <h3 class="profile-name">{{ selectedEmployee.firstName }} {{ selectedEmployee.lastName }}</h3>
+        <p class="profile-desc">{{ selectedEmployee.designation }} | {{ selectedEmployee.departmentName || 'No Department' }}</p>
+        
+        <hr class="divider">
+        
+        <div class="profile-grid">
+          <div class="profile-field">
+            <span class="p-label">Employee Code</span>
+            <span class="p-val">{{ selectedEmployee.employeeCode }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Email Address</span>
+            <span class="p-val">{{ selectedEmployee.email }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Phone Number</span>
+            <span class="p-val">{{ selectedEmployee.phone }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Gender</span>
+            <span class="p-val">{{ selectedEmployee.gender }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Date of Birth</span>
+            <span class="p-val">{{ selectedEmployee.dateOfBirth }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Joining Date</span>
+            <span class="p-val">{{ selectedEmployee.joiningDate }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Reporting Manager</span>
+            <span class="p-val">{{ selectedEmployee.managerName || 'None' }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Salary Details</span>
+            <span class="p-val">₹{{ selectedEmployee.salary }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">System Role</span>
+            <span class="p-val">{{ selectedEmployee.role }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="p-label">Account Enabled</span>
+            <span class="p-val">{{ selectedEmployee.accountEnabled ? 'Yes' : 'No' }}</span>
+          </div>
+          <div class="profile-field profile-field-full">
+            <span class="p-label">Residential Address</span>
+            <span class="p-val">{{ selectedEmployee.address }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body view-profile-body profile-loading-container" *ngIf="isLoadingProfile">
+        <div class="spinner"></div>
+        <span class="profile-loading-text">Fetching profile data...</span>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

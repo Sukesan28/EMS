@@ -1,0 +1,102 @@
+<app-greeting [userName]="fullName"></app-greeting>
+
+<!-- Role Description Banner -->
+<div class="info-banner">
+  <div class="info-banner-content">
+    <h4>Manager Workspace</h4>
+    <p>Welcome to the Manager Portal. Monitor your direct team members, approve pending leave requests, and view daily attendance logging for your team.</p>
+  </div>
+</div>
+
+<!-- Statistic Cards Grid -->
+<div class="grid grid-4">
+  <app-statistic-card title="My Team Count" [value]="teamCount()" icon="" themeColor="primary"></app-statistic-card>
+  <app-statistic-card title="Present Today" [value]="presentCount()" icon="" themeColor="success"></app-statistic-card>
+  <app-statistic-card title="Absent Today" [value]="absentCount()" icon="" themeColor="danger"></app-statistic-card>
+  <app-statistic-card title="Pending Leaves" [value]="pendingLeavesCount()" icon="" themeColor="warning"></app-statistic-card>
+</div>
+
+<div class="dashboard-layout-grid">
+  <!-- Left Side: Team Members -->
+  <div class="card team-members-card">
+    <div class="card-header">
+      <h3 class="card-title">My Team Members</h3>
+      <span class="badge badge-info">{{ teamMembers().length }} Members</span>
+    </div>
+    
+    <div class="loading-state" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <span>Loading team details...</span>
+    </div>
+
+    <div class="table-responsive" *ngIf="!isLoading()">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Designation</th>
+            <th>Email</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of teamMembers()">
+            <td><strong>{{ emp.employeeCode }}</strong></td>
+            <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+            <td>{{ emp.designation }}</td>
+            <td>{{ emp.email }}</td>
+            <td>
+              <span class="badge" [class.badge-success]="emp.employmentStatus === 'ACTIVE'" [class.badge-warning]="emp.employmentStatus === 'ON_PROBATION'" [class.badge-danger]="emp.employmentStatus === 'TERMINATED' || emp.employmentStatus === 'SUSPENDED'">
+                {{ emp.employmentStatus }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="teamMembers().length === 0">
+            <td colspan="5" class="no-records-cell">No team members found under your management.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Right Side: Quick Actions & Pending Requests Alert -->
+  <div class="flex flex-col gap-3">
+    <div class="card quick-actions-card">
+      <div class="card-header card-header-bordered">
+        <h3 class="card-title">Quick Actions</h3>
+      </div>
+      <div class="actions-grid">
+        <a routerLink="/leave" class="action-item">
+          <span class="action-label">Approve Leaves</span>
+        </a>
+        <a routerLink="/attendance" class="action-item">
+          <span class="action-label">Team Attendance</span>
+        </a>
+      </div>
+    </div>
+    
+    <div class="card pending-alert-card" *ngIf="pendingLeaves().length > 0">
+      <h4 class="pending-title">
+        Pending Approvals
+      </h4>
+      <p class="pending-text">
+        You have <strong>{{ pendingLeaves().length }}</strong> pending leave requests that require your review.
+      </p>
+      <a routerLink="/leave" class="btn btn-warning btn-block btn-center">Go to Leaves</a>
+    </div>
+
+    <!-- Upcoming Holidays -->
+    <div class="card holidays-card">
+      <div class="card-header card-header-bordered">
+        <h3 class="card-title">Upcoming Holidays</h3>
+      </div>
+      <div class="holiday-list">
+        <div class="holiday-row" *ngFor="let holiday of upcomingHolidays">
+          <span class="holiday-name">{{ holiday.name }}</span>
+          <span class="holiday-date">{{ holiday.date }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
